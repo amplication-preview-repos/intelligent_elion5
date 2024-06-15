@@ -1,5 +1,5 @@
 datasource db {
-  provider = "postgresql"
+  provider = "mongodb"
   url      = env("DB_URL")
 }
 
@@ -9,6 +9,65 @@ generator client {
 
 model Test {
   createdAt DateTime @default(now())
-  id        String   @id @default(cuid())
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
   updatedAt DateTime @updatedAt
+}
+
+model Product {
+  category    Category? @relation(fields: [categoryId], references: [id])
+  categoryId  String?   @db.ObjectId
+  createdAt   DateTime  @default(now())
+  description String?
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  name        String?
+  price       Float?
+  updatedAt   DateTime  @updatedAt
+}
+
+model Category {
+  createdAt   DateTime  @default(now())
+  description String?
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  name        String?
+  products    Product[]
+  updatedAt   DateTime  @updatedAt
+}
+
+model Order {
+  createdAt   DateTime  @default(now())
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  orderDate   DateTime?
+  totalAmount Float?
+  updatedAt   DateTime  @updatedAt
+}
+
+model User {
+  createdAt DateTime @default(now())
+  email     String?  @unique
+  firstName String?
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  lastName  String?
+  password  String
+  roles     Json
+  updatedAt DateTime @updatedAt
+  username  String   @unique
+}
+
+model Permission {
+  createdAt   DateTime @default(now())
+  description String?
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  name        String?
+  role        Role?    @relation(fields: [roleId], references: [id])
+  roleId      String?  @db.ObjectId
+  updatedAt   DateTime @updatedAt
+}
+
+model Role {
+  createdAt   DateTime     @default(now())
+  description String?
+  id          String       @id @default(auto()) @map("_id") @db.ObjectId
+  name        String?
+  permissions Permission[]
+  updatedAt   DateTime     @updatedAt
 }
